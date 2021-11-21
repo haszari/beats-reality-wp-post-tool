@@ -60,7 +60,6 @@ const url = `${ process.env.WP_BASE_URL }posts`;
 
 console.log( `Using tracklist markdown file ${ argv.tracklist }`);
 console.log( `POSTing to ${ url }`);
-console.log( `user=${ process.env.WP_USER }, pass=${ process.env.WP_PASSWORD }`);
 
 axios.post( url, {
     status: 'publish',
