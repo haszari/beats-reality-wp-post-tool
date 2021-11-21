@@ -15,6 +15,6 @@
     "gray-matter": "^4.0.3",
     "marked": "^4.0.4",
     "mustache": "^4.2.0",
-    "yargs": "17.2.1"
+    "yargs": "^17.2.1"
   }
 }
