@@ -6,6 +6,11 @@ const matter = require( 'gray-matter' );
 const marked = require( 'marked' );
 var Mustache = require( 'mustache' );
 
+// Retrieve env vars for sensitive creds etc.
+// Example env file:
+// WP_BASE_URL=https://myradioshow.com/wp-json/wp/v2/
+// WP_USER=application_password_user
+// WP_PASSWORD=application_password_s3cr4t_p1ssw88d
 require('dotenv').config();
 
 const argv = yargs(process.argv.slice(2))
@@ -23,19 +28,25 @@ if ( ! argv.tracklist ) {
     exit;
 }
 
+// Read input tracklist file. 
+// This file should be a markdown formatted tracklist (numbered list), 
+// with yaml front matter with the following variables:
+// title, tags, mixcloud_url, mixcloud_url_r1
+// See sample-data folder for an example.
 const file = matter.read( argv.tracklist );
-// console.log(file); return;
 
+// Render tracklist has html.
 const tracklistHtml = marked.parse( file.content );
-// console.log(tracklistHtml); return;
 
+// Load the post template. 
 const template = fs.readFileSync( './templates/beats-reality.mustache', 'utf8' );
-// console.log(template); return;
+
 const { 
     mixcloud_url,
     mixcloud_url_r1 
 } = file.data;
 
+// Render post content using template, variables, and tracklist html.
 const postContent = Mustache.render( 
     template,
     {
@@ -44,7 +55,6 @@ const postContent = Mustache.render(
         tracklistHtml,
     }
 );
-// console.log(postContent); return;
 
 const url = `${ process.env.WP_BASE_URL }posts`;
 
@@ -56,10 +66,16 @@ axios.post( url, {
     status: 'publish',
     content: postContent,
     title: file.data.title,
+
+    // Excerpt is generated from tags.
+    excerpt: file.data.tags.join( ' | ' ),
+
     // tags need to be passed as IDs for tags that already exist
     // coming sooon
     // tags: file.data.tags,
     }, {
+        // Basic auth using WordPress application password.
+        // https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/
         auth: {
             username: process.env.WP_USER,
             password: process.env.WP_PASSWORD
@@ -71,5 +87,3 @@ axios.post( url, {
 .catch(function (error) {
     console.log(error);
 });
-
-// console.log(argv);
