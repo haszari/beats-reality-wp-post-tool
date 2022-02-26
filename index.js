@@ -58,11 +58,15 @@ const postContent = Mustache.render(
 
 const url = `${ process.env.WP_BASE_URL }posts`;
 
+// Hard-coded category id from specific site.
+const radioPostCategoryId = 45;
+
 console.log( `Using tracklist markdown file ${ argv.tracklist }`);
 console.log( `POSTing to ${ url }`);
 
 axios.post( url, {
     status: 'publish',
+    categories: [ radioPostCategoryId ],
     content: postContent,
     title: file.data.title,
 
